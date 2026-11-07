@@ -21,6 +21,7 @@ export_presets.cfg
 builds/
 *.exe
 *.pck
+captura_juego.png
 
 # OS / Editor
 .DS_Store

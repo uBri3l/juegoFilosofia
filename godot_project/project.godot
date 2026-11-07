@@ -17,8 +17,9 @@ config/features=PackedStringArray("4.2", "GL Compatibility")
 
 [display]
 
-window/size/viewport_width=960
+window/size/viewport_width=900
 window/size/viewport_height=540
+window/size/initial_position_type=1
 window/size/always_on_top=true
 window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"

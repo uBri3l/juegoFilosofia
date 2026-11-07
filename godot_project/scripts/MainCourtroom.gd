@@ -42,8 +42,7 @@ var chars_visibles: float = 0.0
 
 
 func _ready() -> void:
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	DisplayServer.window_move_to_foreground()
+	_centrar_ventana_en_pantalla()
 	_construir_interfaz_8bit()
 	http_req = HTTPRequest.new()
 	add_child(http_req)
@@ -51,9 +50,32 @@ func _ready() -> void:
 	iniciar_nuevo_juicio()
 
 
+func _centrar_ventana_en_pantalla() -> void:
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	var screen_rect: Rect2i = DisplayServer.screen_get_usable_rect()
+	var win_size: Vector2i = Vector2i(900, 540)
+	# Si la pantalla es pequeña, ajustamos para que jamás se salga por la derecha
+	if screen_rect.size.x > 0 and screen_rect.size.y > 0:
+		win_size.x = mini(900, screen_rect.size.x - 40)
+		win_size.y = mini(540, screen_rect.size.y - 60)
+		DisplayServer.window_set_size(win_size)
+		var pos_x: int = screen_rect.position.x + int((screen_rect.size.x - win_size.x) / 2)
+		var pos_y: int = screen_rect.position.y + int((screen_rect.size.y - win_size.y) / 2)
+		DisplayServer.window_set_position(Vector2i(max(10, pos_x), max(10, pos_y)))
+	DisplayServer.window_move_to_foreground()
+
+
+func _guardar_captura_verificacion() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var img: Image = get_viewport().get_texture().get_image()
+	if img:
+		img.save_png("c:/Users/gabri/OneDrive/Escritorio/juegoFilosofia/captura_juego.png")
+
+
 func _process(delta: float) -> void:
 	if lbl_dialogo_rival and lbl_dialogo_rival.visible_characters < texto_meta_dialogo.length():
-		chars_visibles += delta * 48.0
+		chars_visibles += delta * 60.0
 		lbl_dialogo_rival.visible_characters = int(chars_visibles)
 		stage.speaker_state = "RIVAL"
 	else:
@@ -66,66 +88,72 @@ func _crear_estilo_caja(bg_hex: String, border_hex: String, border_w: int = 2) -
 	sb.bg_color = Color(bg_hex)
 	sb.border_color = Color(border_hex)
 	sb.set_border_width_all(border_w)
-	sb.set_content_margin_all(8)
+	sb.set_content_margin_all(6)
 	return sb
 
 
 func _construir_interfaz_8bit() -> void:
 	var root_vbox := VBoxContainer.new()
-	root_vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 10)
-	root_vbox.add_theme_constant_override("separation", 6)
+	root_vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 8)
+	root_vbox.add_theme_constant_override("separation", 5)
 	add_child(root_vbox)
 
-	# 1. Barra superior: Selección de Caso, Dificultad y Estado LiteLLM
+	# 1. Barra superior compacta (jamás rebasa el ancho de 900px)
 	var top_panel := PanelContainer.new()
 	top_panel.add_theme_stylebox_override("panel", _crear_estilo_caja("#1f2438", "#5a6988", 2))
 	root_vbox.add_child(top_panel)
 
 	var top_hbox := HBoxContainer.new()
-	top_hbox.add_theme_constant_override("separation", 10)
+	top_hbox.add_theme_constant_override("separation", 8)
 	top_panel.add_child(top_hbox)
 
 	var lbl_caso := Label.new()
 	lbl_caso.text = "CASO:"
 	lbl_caso.add_theme_color_override("font_color", Color("#fee761"))
+	lbl_caso.add_theme_font_size_override("font_size", 12)
 	top_hbox.add_child(lbl_caso)
 
 	selector_caso = OptionButton.new()
-	selector_caso.add_item("Caso 1: Algoritmo Médico (Bioética/NDA)", 0)
-	selector_caso.add_item("Caso 2: Informe Químico (Secreto vs. Ambiente)", 1)
-	selector_caso.add_item("Caso 3: Auditoría de Pensiones (Conflicto Interés)", 2)
+	selector_caso.add_item("1: Algoritmo Médico", 0)
+	selector_caso.add_item("2: Informe Químico", 1)
+	selector_caso.add_item("3: Auditoría Pensiones", 2)
+	selector_caso.add_theme_font_size_override("font_size", 12)
 	selector_caso.item_selected.connect(_on_caso_cambiado)
 	top_hbox.add_child(selector_caso)
 
 	var lbl_dif := Label.new()
 	lbl_dif.text = "DIFICULTAD:"
 	lbl_dif.add_theme_color_override("font_color", Color("#fee761"))
+	lbl_dif.add_theme_font_size_override("font_size", 12)
 	top_hbox.add_child(lbl_dif)
 
 	selector_dificultad = OptionButton.new()
-	selector_dificultad.add_item("SENCILLA (IA comete más falacias)", 0)
-	selector_dificultad.add_item("NORMAL (Equilibrado)", 1)
-	selector_dificultad.add_item("DIFÍCIL (IA casi infalible)", 2)
+	selector_dificultad.add_item("Sencilla", 0)
+	selector_dificultad.add_item("Normal", 1)
+	selector_dificultad.add_item("Difícil", 2)
 	selector_dificultad.selected = 1
+	selector_dificultad.add_theme_font_size_override("font_size", 12)
 	selector_dificultad.item_selected.connect(_on_dificultad_cambiada)
 	top_hbox.add_child(selector_dificultad)
 
 	var btn_reiniciar := Button.new()
-	btn_reiniciar.text = "NUEVO JUICIO"
+	btn_reiniciar.text = "REINICIAR JUICIO"
+	btn_reiniciar.add_theme_font_size_override("font_size", 12)
 	btn_reiniciar.pressed.connect(iniciar_nuevo_juicio)
 	top_hbox.add_child(btn_reiniciar)
 
 	lbl_modelo_ia = Label.new()
-	lbl_modelo_ia.text = "[LiteLLM: Conectando...]"
+	lbl_modelo_ia.text = "[IA: Conectando...]"
 	lbl_modelo_ia.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl_modelo_ia.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	lbl_modelo_ia.clip_text = true
 	lbl_modelo_ia.add_theme_color_override("font_color", Color("#63c74d"))
-	lbl_modelo_ia.add_theme_font_size_override("font_size", 12)
+	lbl_modelo_ia.add_theme_font_size_override("font_size", 11)
 	top_hbox.add_child(lbl_modelo_ia)
 
 	# 2. Barras de Vida (HP) de ambos abogados
 	var hp_hbox := HBoxContainer.new()
-	hp_hbox.add_theme_constant_override("separation", 16)
+	hp_hbox.add_theme_constant_override("separation", 14)
 	root_vbox.add_child(hp_hbox)
 
 	var vbox_hp_p := VBoxContainer.new()
@@ -135,13 +163,14 @@ func _construir_interfaz_8bit() -> void:
 	lbl_hp_jugador = Label.new()
 	lbl_hp_jugador.text = "TU CREDIBILIDAD (DEFENSA): 100 / 100 HP"
 	lbl_hp_jugador.add_theme_color_override("font_color", Color("#2ce8f5"))
+	lbl_hp_jugador.add_theme_font_size_override("font_size", 12)
 	vbox_hp_p.add_child(lbl_hp_jugador)
 
 	bar_hp_jugador = ProgressBar.new()
 	bar_hp_jugador.max_value = 100
 	bar_hp_jugador.value = 100
 	bar_hp_jugador.show_percentage = false
-	bar_hp_jugador.custom_minimum_size = Vector2(0, 16)
+	bar_hp_jugador.custom_minimum_size = Vector2(0, 14)
 	bar_hp_jugador.add_theme_stylebox_override("background", _crear_estilo_caja("#262b44", "#ffffff", 1))
 	bar_hp_jugador.add_theme_stylebox_override("fill", _crear_estilo_caja("#38b764", "#ffffff", 0))
 	vbox_hp_p.add_child(bar_hp_jugador)
@@ -154,20 +183,22 @@ func _construir_interfaz_8bit() -> void:
 	lbl_hp_rival.text = "CREDIBILIDAD ABOGADO RIVAL (IA): 100 / 100 HP"
 	lbl_hp_rival.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	lbl_hp_rival.add_theme_color_override("font_color", Color("#ff7777"))
+	lbl_hp_rival.add_theme_font_size_override("font_size", 12)
 	vbox_hp_r.add_child(lbl_hp_rival)
 
 	bar_hp_rival = ProgressBar.new()
 	bar_hp_rival.max_value = 100
 	bar_hp_rival.value = 100
 	bar_hp_rival.show_percentage = false
-	bar_hp_rival.custom_minimum_size = Vector2(0, 16)
+	bar_hp_rival.custom_minimum_size = Vector2(0, 14)
 	bar_hp_rival.add_theme_stylebox_override("background", _crear_estilo_caja("#262b44", "#ffffff", 1))
 	bar_hp_rival.add_theme_stylebox_override("fill", _crear_estilo_caja("#e43b44", "#ffffff", 0))
 	vbox_hp_r.add_child(bar_hp_rival)
 
 	# 3. Escenario 2D 8-Bit del Juzgado
 	stage = PixelCourtStageScript.new()
-	stage.custom_minimum_size = Vector2(0, 168)
+	stage.custom_minimum_size = Vector2(0, 152)
+	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stage.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root_vbox.add_child(stage)
 
@@ -180,7 +211,7 @@ func _construir_interfaz_8bit() -> void:
 	lbl_juez_feedback.text = "JUEZ: El tribunal está en sesión. Analiza el argumento del fiscal."
 	lbl_juez_feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lbl_juez_feedback.add_theme_color_override("font_color", Color("#fee761"))
-	lbl_juez_feedback.add_theme_font_size_override("font_size", 13)
+	lbl_juez_feedback.add_theme_font_size_override("font_size", 12)
 	juez_panel.add_child(lbl_juez_feedback)
 
 	# 5. Cuadro de Diálogo del Abogado Rival + Botón de Marcar Falacia
@@ -198,10 +229,12 @@ func _construir_interfaz_8bit() -> void:
 	lbl_nombre_hablante.text = "ABOGADO CONTRINCANTE (IA):"
 	lbl_nombre_hablante.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl_nombre_hablante.add_theme_color_override("font_color", Color("#ff6b6b"))
+	lbl_nombre_hablante.add_theme_font_size_override("font_size", 12)
 	header_dialogo.add_child(lbl_nombre_hablante)
 
 	btn_objecion_falacia = Button.new()
-	btn_objecion_falacia.text = "¡OBJECIÓN! MARCAR DECLARACIÓN DEL RIVAL COMO FALACIA"
+	btn_objecion_falacia.text = "¡OBJECIÓN! MARCAR DECLARACIÓN COMO FALACIA"
+	btn_objecion_falacia.add_theme_font_size_override("font_size", 12)
 	btn_objecion_falacia.add_theme_stylebox_override("normal", _crear_estilo_caja("#9e2835", "#fee761", 2))
 	btn_objecion_falacia.add_theme_stylebox_override("hover", _crear_estilo_caja("#e43b44", "#ffffff", 2))
 	btn_objecion_falacia.add_theme_color_override("font_color", Color("#ffffff"))
@@ -209,27 +242,28 @@ func _construir_interfaz_8bit() -> void:
 	header_dialogo.add_child(btn_objecion_falacia)
 
 	lbl_dialogo_rival = RichTextLabel.new()
-	lbl_dialogo_rival.custom_minimum_size = Vector2(0, 48)
+	lbl_dialogo_rival.custom_minimum_size = Vector2(0, 44)
 	lbl_dialogo_rival.fit_content = true
 	lbl_dialogo_rival.scroll_active = false
-	lbl_dialogo_rival.add_theme_font_size_override("normal_font_size", 14)
+	lbl_dialogo_rival.add_theme_font_size_override("normal_font_size", 13)
 	dialogo_vbox.add_child(lbl_dialogo_rival)
 
 	# 6. Cuadrícula de 4 Opciones de Argumento para el Jugador (1 Infalible, 2 Medios, 1 Falacia)
 	var grid_opciones := GridContainer.new()
 	grid_opciones.columns = 2
+	grid_opciones.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid_opciones.add_theme_constant_override("h_separation", 8)
-	grid_opciones.add_theme_constant_override("v_separation", 8)
+	grid_opciones.add_theme_constant_override("v_separation", 6)
 	root_vbox.add_child(grid_opciones)
 
 	botones_opciones.clear()
 	for i in range(4):
 		var btn := Button.new()
-		btn.custom_minimum_size = Vector2(440, 54)
+		btn.custom_minimum_size = Vector2(0, 52)
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.add_theme_font_size_override("font_size", 12)
+		btn.add_theme_font_size_override("font_size", 11)
 		btn.add_theme_stylebox_override("normal", _crear_estilo_caja("#1d2b53", "#29adff", 2))
 		btn.add_theme_stylebox_override("hover", _crear_estilo_caja("#29366f", "#fee761", 2))
 		var idx_capturado: int = i
@@ -304,7 +338,7 @@ func _on_opcion_argumento_elegida(idx: int) -> void:
 
 func _solicitar_turno_litellm(accion: String, opcion_elegida: Dictionary) -> void:
 	_set_botones_habilitados(false)
-	lbl_modelo_ia.text = "[LiteLLM: Pensando jugada...]"
+	lbl_modelo_ia.text = "[IA: Pensando en español...]"
 
 	var payload: Dictionary = {
 		"caso_id": caso_id_actual,
@@ -326,7 +360,7 @@ func _solicitar_turno_litellm(accion: String, opcion_elegida: Dictionary) -> voi
 
 func _on_litellm_response(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
-		lbl_modelo_ia.text = "[Modo Offline Integrado en Godot]"
+		lbl_modelo_ia.text = "[Modo Local]"
 		_aplicar_respaldo_offline_en_godot("FALLBACK", {})
 		return
 
@@ -360,18 +394,19 @@ func _procesar_datos_turno(datos: Dictionary) -> void:
 	var veredicto: String = str(datos.get("veredicto_juez", ""))
 	lbl_juez_feedback.text = "JUEZ: " + veredicto
 
-	# Verificar condición de victoria o derrota
 	if hp_rival <= 0:
 		juicio_terminado = true
 		lbl_juez_feedback.text = "¡VEREDICTO FINAL: VICTORIA! Has desmontado todos los argumentos del fiscal con ética y lógica impecable."
 		_mostrar_dialogo_rival("¡Imposible! ¡Mi argumentación ha sido completamente refutada en este tribunal!")
 		_set_botones_habilitados(false)
+		_guardar_captura_verificacion()
 		return
 	elif hp_jugador <= 0:
 		juicio_terminado = true
 		lbl_juez_feedback.text = "VEREDICTO FINAL: DERROTA. Tus falacias y objeciones infundadas agotaron tu credibilidad ante el tribunal."
 		_mostrar_dialogo_rival("El tribunal ha visto las fisuras de su razonamiento. ¡El caso está cerrado!")
 		_set_botones_habilitados(false)
+		_guardar_captura_verificacion()
 		return
 
 	declaracion_rival_actual = datos.get("declaracion_rival", {})
@@ -388,20 +423,20 @@ func _procesar_datos_turno(datos: Dictionary) -> void:
 
 	ya_objeto_este_turno = false
 	_set_botones_habilitados(true)
+	_guardar_captura_verificacion()
 
 
 func _mostrar_dialogo_rival(texto: String) -> void:
 	texto_meta_dialogo = texto
-	chars_visibles = 0.0
+	chars_visibles = float(texto.length())
 	lbl_dialogo_rival.text = texto
-	lbl_dialogo_rival.visible_characters = 0
+	lbl_dialogo_rival.visible_characters = -1
 
 
 func _aplicar_respaldo_offline_en_godot(accion: String, opcion_elegida: Dictionary) -> void:
-	# Por si el usuario abre Godot sin haber encendido aún el servidor Python LiteLLM
 	var dano_r: int = 0
 	var dano_j: int = 0
-	var veredicto: String = "El juicio avanza en modo local (ejecuta iniciar_juego.bat para conectar LiteLLM)."
+	var veredicto: String = "El juicio avanza en español."
 
 	if accion == "MARCAR_FALACIA" and not declaracion_rival_actual.is_empty():
 		if bool(declaracion_rival_actual.get("es_falacia", false)):

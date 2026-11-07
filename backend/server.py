@@ -119,6 +119,21 @@ def limpiar_y_parsear_json(texto: str) -> dict[str, Any]:
     return datos
 
 
+def es_respuesta_en_espanol(datos: dict[str, Any]) -> bool:
+    """Verifica que los textos generados por el LLM estén en español y no en inglés."""
+    textos: list[str] = [
+        str(datos.get("veredicto_juez", "")),
+        str(datos.get("declaracion_rival", {}).get("dialogo", "")),
+    ]
+    for op in datos.get("opciones_jugador", []):
+        textos.append(str(op.get("texto", "")))
+
+    combinado = " " + " ".join(textos).lower() + " "
+    palabras_ingles = [" the ", " your ", " this ", " that ", " with ", " from ", " argument ", " court ", " judge ", " fallacy ", " however ", " because "]
+    conteo_ingles = sum(1 for p in palabras_ingles if p in combinado)
+    return conteo_ingles == 0
+
+
 @app.get("/health")
 def health_check() -> dict[str, Any]:
     modelos = detectar_modelos_gratuitos_disponibles()
@@ -179,9 +194,14 @@ def procesar_turno(req: TurnRequest) -> dict[str, Any]:
             )
             contenido = respuesta.choices[0].message.content
             datos = limpiar_y_parsear_json(contenido)
-            if "declaracion_rival" in datos and len(datos.get("opciones_jugador", [])) == 4:
+            if (
+                "declaracion_rival" in datos
+                and len(datos.get("opciones_jugador", [])) == 4
+                and es_respuesta_en_espanol(datos)
+            ):
                 datos["modelo_usado"] = modelo
                 return datos
+            errores_proveedores.append(f"{modelo}: Respuesta descartada por idioma o formato incompleto")
         except Exception as exc:
             errores_proveedores.append(f"{modelo}: {exc!s}")
 
