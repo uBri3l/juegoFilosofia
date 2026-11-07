@@ -6,7 +6,7 @@ Evalúa exhaustivamente la superficie de seguridad antes de repartir el ejecutab
 a terceros (amigos / beta testers):
   1. Inspección Binaria Profunda (.exe, .pck y .zip):
      - Cero claves API (Groq, Gemini, OpenRouter, Cerebras, Mistral).
-     - Cero rutas personales del desarrollador (Users/gabri, OneDrive, etc.).
+     - Cero rutas personales del desarrollador (Users/<usuario>, OneDrive, etc.).
      - Cero scripts de prueba/debug empaquetados dentro del binario de producción.
      - Cálculo de hashes criptográficos SHA-256 de integridad.
   2. Auditoría Estática de Sandbox en Código Godot (GDScript):
@@ -113,9 +113,10 @@ def auditar_binarios_exportados() -> dict[str, str]:
                     secretos_reales.append(valor.encode("utf-8"))
 
     # Patrones prohibidos dentro de los binarios distribuibles (ASCII y UTF-16LE)
+    usuario_actual = Path.home().name.encode("utf-8")
     patrones_prohibidos: list[bytes] = [
-        b"Users/gabri",
-        b"Users\\gabri",
+        b"Users/" + usuario_actual,
+        b"Users\\" + usuario_actual,
         b"OneDrive/Escritorio",
         b"OneDrive\\Escritorio",
         b"captura_juego.png",
@@ -254,6 +255,7 @@ def auditar_repositorio_y_git() -> None:
     check(".env" not in archivos_git, "¡ALERTA CRÍTICA! El archivo .env está rastreado por Git")
     check("captura_juego.png" not in archivos_git, "captura_juego.png está rastreado por Git")
 
+    usuario_str = Path.home().name.lower()
     regex_claves = re.compile(r"(gsk_[A-Za-z0-9]{20,}|AIzaSy[A-Za-z0-9_-]{30,}|sk-or-v1-[a-f0-9]{32,})")
     for rel_path in archivos_git:
         p = ROOT_DIR / rel_path
@@ -264,8 +266,8 @@ def auditar_repositorio_y_git() -> None:
         check(len(coincidencias) == 0, f"Clave API real encontrada en archivo rastreado por Git: {rel_path}")
         if p.suffix in (".py", ".gd", ".bat", ".tscn", ".cfg"):
             check(
-                "users/gabri" not in txt.lower() and "users\\gabri" not in txt.lower(),
-                f"Ruta personal del desarrollador ('Users/gabri') encontrada en {rel_path}",
+                f"users/{usuario_str}" not in txt.lower() and f"users\\{usuario_str}" not in txt.lower(),
+                f"Ruta personal del desarrollador encontrada en {rel_path}",
             )
 
     dt = (time.perf_counter() - t0) * 1000.0
