@@ -13,16 +13,19 @@ config_version=5
 config/name="Juicio Lógico 8-Bit: Falacias y Ética Profesional"
 config/description="Videojuego 2D 8-bit de juicios por turnos sobre falacias, argumentación y ética profesional potenciado por LiteLLM."
 run/main_scene="res://scenes/MainCourtroom.tscn"
-config/features=PackedStringArray("4.2", "Forward Plus")
+config/features=PackedStringArray("4.2", "GL Compatibility")
 
 [display]
 
 window/size/viewport_width=960
 window/size/viewport_height=540
+window/size/always_on_top=true
 window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"
 
 [rendering]
 
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
 textures/canvas_textures/default_texture_filter=0
 environment/defaults/default_clear_color=Color(0.07, 0.06, 0.12, 1)

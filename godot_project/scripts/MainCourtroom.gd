@@ -42,6 +42,8 @@ var chars_visibles: float = 0.0
 
 
 func _ready() -> void:
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_move_to_foreground()
 	_construir_interfaz_8bit()
 	http_req = HTTPRequest.new()
 	add_child(http_req)
