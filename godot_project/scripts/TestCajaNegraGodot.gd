@@ -172,8 +172,8 @@ func _correr_caja_negra_godot() -> void:
 	var rondas_derrota: int = 0
 	while not app.juicio_terminado and rondas_derrota < 15:
 		rondas_derrota += 1
-		# Si la declaración del rival NO es falacia, objetar falsamente resta 20 HP; si es falacia, elegir argumento MEDIO en DIFICIL resta 15 HP
-		if not bool(app.declaracion_rival_actual.get("es_falacia", false)):
+		# Si la declaración del rival NO es falacia y no se usó objeción el turno previo, objetar falsamente resta 20 HP; de lo contrario elegir argumento MEDIO en DIFICIL resta 15 HP
+		if (not bool(app.declaracion_rival_actual.get("es_falacia", false))) and (not app.btn_objecion_falacia.disabled):
 			app.btn_objecion_falacia.pressed.emit()
 		else:
 			var idx_medio: int = 0

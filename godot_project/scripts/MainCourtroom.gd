@@ -421,6 +421,8 @@ func _construir_interfaz_juzgado() -> void:
 	var btn_reiniciar := Button.new()
 	btn_reiniciar.text = "🔄 REINICIAR JUICIO"
 	btn_reiniciar.add_theme_font_size_override("font_size", 11)
+	btn_reiniciar.add_theme_stylebox_override("normal", _crear_estilo_caja("#1d2b53", "#2ce8f5", 2, 5))
+	btn_reiniciar.add_theme_stylebox_override("hover", _crear_estilo_caja("#29366f", "#fee761", 2, 5))
 	btn_reiniciar.pressed.connect(iniciar_nuevo_juicio)
 	top_hbox.add_child(btn_reiniciar)
 
@@ -636,9 +638,10 @@ func _set_botones_habilitados(habilitado: bool) -> void:
 
 
 func _on_marcar_falacia_pressed() -> void:
-	if esperando_respuesta or juicio_terminado:
+	if esperando_respuesta or juicio_terminado or ya_objeto_este_turno:
 		return
 	ya_objeto_este_turno = true
+	turno_idx += 1
 	stage.trigger_objection("¡OBJECIÓN! ¡ES UNA FALACIA!")
 	stage.speaker_state = "JUGADOR"
 	_solicitar_turno_litellm("MARCAR_FALACIA", {})
@@ -762,6 +765,7 @@ func _procesar_datos_turno(datos: Dictionary) -> void:
 
 	declaracion_rival_actual = datos.get("declaracion_rival", {})
 	var texto_rival: String = str(declaracion_rival_actual.get("dialogo", ""))
+	stage.speaker_state = "RIVAL"
 	_mostrar_dialogo_rival(texto_rival)
 
 	opciones_actuales = datos.get("opciones_jugador", [])
@@ -772,7 +776,12 @@ func _procesar_datos_turno(datos: Dictionary) -> void:
 		else:
 			botones_opciones[i].text = "-"
 
-	ya_objeto_este_turno = false
+	if ultima_accion_pendiente == "MARCAR_FALACIA":
+		ya_objeto_este_turno = true
+		btn_objecion_falacia.text = "OBJECIÓN USADA (ELIGE ARGUMENTO 1-4)"
+	else:
+		ya_objeto_este_turno = false
+		btn_objecion_falacia.text = "¡OBJECIÓN! MARCAR DECLARACIÓN COMO FALACIA"
 	_set_botones_habilitados(true)
 	_guardar_captura_verificacion()
 

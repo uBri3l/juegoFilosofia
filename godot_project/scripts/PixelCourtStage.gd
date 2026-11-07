@@ -51,11 +51,17 @@ func trigger_damage_flash(target: String) -> void:
 
 func trigger_victory_animation() -> void:
 	result_state = "VICTORIA"
+	speaker_state = "JUEZ"
+	flash_player_timer = 0.0
+	flash_rival_timer = 0.0
 	objection_banner_timer = 0.0
 
 
 func trigger_defeat_animation() -> void:
 	result_state = "DERROTA"
+	speaker_state = "JUEZ"
+	flash_player_timer = 0.0
+	flash_rival_timer = 0.0
 	objection_banner_timer = 0.0
 
 
@@ -94,17 +100,18 @@ func _draw() -> void:
 		_draw_px_rect(px + 2, 5, 4, h_px - 16, Color("#5a6988"))
 		_draw_px_rect(px - 2, 3, 12, 3, Color("#8b9bb4"))
 
-	# Emblema dorado de la Balanza de la Justicia en el centro superior
+	# Emblema dorado de la Balanza de la Justicia en el centro superior (visible cuando no hay cartel superpuesto)
 	var cx: int = int(w_px / 2)
-	_draw_px_rect(cx - 8, 3, 16, 11, Color("#3e2731"))
-	_draw_px_rect(cx - 1, 5, 2, 7, Color("#feae34"))
-	_draw_px_rect(cx - 6, 7, 12, 2, Color("#feae34"))
-	_draw_px_rect(cx - 6, 9, 3, 3, Color("#fee761"))
-	_draw_px_rect(cx + 3, 9, 3, 3, Color("#fee761"))
+	if result_state == "NONE" and objection_banner_timer <= 0.0:
+		_draw_px_rect(cx - 8, 2, 16, 11, Color("#3e2731"))
+		_draw_px_rect(cx - 1, 4, 2, 7, Color("#feae34"))
+		_draw_px_rect(cx - 6, 6, 12, 2, Color("#feae34"))
+		_draw_px_rect(cx - 6, 8, 3, 3, Color("#fee761"))
+		_draw_px_rect(cx + 3, 8, 3, 3, Color("#fee761"))
 
 	# 2. Estrado del Juez (Centro)
 	var jx: int = cx - 9
-	var jy: int = 15
+	var jy: int = 16
 	var judge_talking: bool = (speaker_state == "JUEZ" or result_state != "NONE") and (int(anim_time * 8.0) % 2 == 0)
 	_draw_px_rect(jx + 4, jy, 10, 4, Color("#ffffff"))
 	_draw_px_rect(jx + 3, jy + 3, 2, 7, Color("#e0e0e0"))
@@ -188,16 +195,16 @@ func _draw() -> void:
 			_draw_px_rect(c_x, c_y, 2, 2, colores_confeti[i % colores_confeti.size()])
 
 		var v_bx: float = size.x * 0.5 - 210.0
-		var v_by: float = 12.0 + sin(anim_time * 6.0) * 4.0
-		draw_rect(Rect2(v_bx - 4, v_by - 4, 428, 48), Color("#fee761"), true)
-		draw_rect(Rect2(v_bx, v_by, 420, 40), Color("#1e6f50"), true)
+		var v_by: float = 8.0 + sin(anim_time * 6.0) * 2.0
+		draw_rect(Rect2(v_bx - 3, v_by - 3, 426, 40), Color("#fee761"), true)
+		draw_rect(Rect2(v_bx, v_by, 420, 34), Color("#1e6f50"), true)
 		draw_string(
 			ThemeDB.fallback_font,
-			Vector2(v_bx + 16, v_by + 27),
+			Vector2(v_bx + 16, v_by + 23),
 			"★ ¡VICTORIA MAGISTRAL EN EL JUICIO! ★",
 			HORIZONTAL_ALIGNMENT_CENTER,
 			388,
-			18,
+			17,
 			Color("#ffffff")
 		)
 
@@ -208,30 +215,30 @@ func _draw() -> void:
 			_draw_px_rect(r_x, r_y, 1, 4, Color("#e43b44"))
 
 		var d_bx: float = size.x * 0.5 - 210.0 + sin(anim_time * 30.0) * 3.0
-		var d_by: float = 12.0
-		draw_rect(Rect2(d_bx - 4, d_by - 4, 428, 48), Color("#ff0044"), true)
-		draw_rect(Rect2(d_bx, d_by, 420, 40), Color("#3e121c"), true)
+		var d_by: float = 8.0
+		draw_rect(Rect2(d_bx - 3, d_by - 3, 426, 40), Color("#ff0044"), true)
+		draw_rect(Rect2(d_bx, d_by, 420, 34), Color("#3e121c"), true)
 		draw_string(
 			ThemeDB.fallback_font,
-			Vector2(d_bx + 16, d_by + 27),
+			Vector2(d_bx + 16, d_by + 23),
 			"✖ ¡DERROTA! CREDIBILIDAD AGOTADA ✖",
 			HORIZONTAL_ALIGNMENT_CENTER,
 			388,
-			18,
+			17,
 			Color("#fee761")
 		)
 
 	elif objection_banner_timer > 0.0:
 		var bx: float = size.x * 0.5 - 160.0
-		var by: float = 14.0
-		draw_rect(Rect2(bx - 3, by - 3, 326, 42), Color("#fee761"), true)
-		draw_rect(Rect2(bx, by, 320, 36), Color("#e43b44"), true)
+		var by: float = 8.0
+		draw_rect(Rect2(bx - 3, by - 3, 326, 38), Color("#fee761"), true)
+		draw_rect(Rect2(bx, by, 320, 32), Color("#e43b44"), true)
 		draw_string(
 			ThemeDB.fallback_font,
-			Vector2(bx + 16, by + 25),
+			Vector2(bx + 16, by + 22),
 			objection_text,
 			HORIZONTAL_ALIGNMENT_CENTER,
 			288,
-			18,
+			17,
 			Color("#ffffff")
 		)
