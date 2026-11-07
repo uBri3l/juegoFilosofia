@@ -8,6 +8,9 @@ extends Control
 
 const BACKEND_URL: String = "http://127.0.0.1:8000/turno"
 const PixelCourtStageScript = preload("res://scripts/PixelCourtStage.gd")
+const CasesDatabaseScript = preload("res://scripts/CasesDatabase.gd")
+
+var servidor_local_disponible: bool = true
 
 const INFO_CASOS: Array[Dictionary] = [
 	{
@@ -656,8 +659,12 @@ func _solicitar_turno_litellm(accion: String, opcion_elegida: Dictionary) -> voi
 	ultima_opcion_pendiente = opcion_elegida
 	tiempo_espera_actual = 0.0
 	_set_botones_habilitados(false)
-	lbl_modelo_ia.text = "[IA: Analizando jugada...]"
 
+	if OS.has_feature("web") or not servidor_local_disponible:
+		_aplicar_respaldo_offline_en_godot(accion, opcion_elegida)
+		return
+
+	lbl_modelo_ia.text = "[IA: Analizando jugada...]"
 	http_req.cancel_request()
 
 	var payload: Dictionary = {
@@ -675,6 +682,7 @@ func _solicitar_turno_litellm(accion: String, opcion_elegida: Dictionary) -> voi
 	var headers: PackedStringArray = ["Content-Type: application/json"]
 	var err: Error = http_req.request(BACKEND_URL, headers, HTTPClient.METHOD_POST, JSON.stringify(payload))
 	if err != OK:
+		servidor_local_disponible = false
 		_aplicar_respaldo_offline_en_godot(accion, opcion_elegida)
 
 
@@ -683,7 +691,9 @@ func _on_litellm_response(result: int, response_code: int, _headers: PackedStrin
 		return
 
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
-		lbl_modelo_ia.text = "[IA: Motor Rápido Español]"
+		if result == HTTPRequest.RESULT_CANT_CONNECT:
+			servidor_local_disponible = false
+		lbl_modelo_ia.text = "[IA: Motor Autónomo]"
 		_aplicar_respaldo_offline_en_godot(ultima_accion_pendiente, ultima_opcion_pendiente)
 		return
 
@@ -773,71 +783,12 @@ func _mostrar_dialogo_rival(texto: String) -> void:
 
 
 func _aplicar_respaldo_offline_en_godot(accion: String, opcion_elegida: Dictionary) -> void:
-	var dano_r: int = 0
-	var dano_j: int = 0
-	var veredicto: String = "El tribunal evalúa los argumentos presentados."
-
-	if accion == "MARCAR_FALACIA" and not declaracion_rival_actual.is_empty():
-		if bool(declaracion_rival_actual.get("es_falacia", false)):
-			dano_r = 25
-			veredicto = "¡HA LUGAR! Detectaste correctamente la falacia: " + str(declaracion_rival_actual.get("nombre_falacia", "Falacia lógica"))
-		else:
-			dano_j = 20
-			veredicto = "¡NO HA LUGAR! El argumento del fiscal no era una falacia; pierdes credibilidad (-20 HP)."
-	elif accion == "ARGUMENTAR" and not opcion_elegida.is_empty():
-		var t: String = str(opcion_elegida.get("tipo", "MEDIO"))
-		if t == "INFALIBLE":
-			dano_r = 25
-			veredicto = "¡Argumento infalible! " + str(opcion_elegida.get("explicacion", ""))
-		elif t == "FALACIA":
-			dano_j = 25
-			veredicto = "¡El fiscal detectó tu falacia (" + str(opcion_elegida.get("nombre_falacia", "")) + ")! Pierdes 25 HP."
-		else:
-			dano_j = 10 if dificultad_actual != "FACIL" else 0
-			veredicto = "Argumento medio rebatible. " + str(opcion_elegida.get("explicacion", ""))
-
-	var rival_es_falacia: bool = (randf() < 0.6) if dificultad_actual == "FACIL" else (randf() < 0.30)
-	var nueva_decl: Dictionary = {
-		"dialogo": "Si permitimos que un profesional cuestione una orden empresarial por razones éticas, mañana nadie obedecerá ninguna ley y colapsará toda la sociedad." if rival_es_falacia else "El contrato profesional fue suscrito libremente por las partes y exige confidencialidad estricta según el reglamento interno.",
-		"es_falacia": rival_es_falacia,
-		"nombre_falacia": "Pendiente Resbaladiza" if rival_es_falacia else null,
-		"explicacion_logica": "Encadena consecuencias extremas sin prueba causal." if rival_es_falacia else "Argumento contractual ordinario pero subordinado a derechos fundamentales."
-	}
-
-	var nuevas_opciones: Array = [
-		{
-			"texto": "Los códigos deontológicos establecen que la protección de la vida, la veracidad y el bienestar público prevalecen sobre cláusulas privadas de secreto.",
-			"tipo": "INFALIBLE",
-			"nombre_falacia": null,
-			"explicacion": "Jerarquía ética del bien público y principio de no maleficencia."
-		},
-		{
-			"texto": "El profesional actuó de buena fe porque sentía empatía personal por los afectados.",
-			"tipo": "MEDIO",
-			"nombre_falacia": null,
-			"explicacion": "Apela a la intención subjetiva, pero requiere sustento deontológico."
-		},
-		{
-			"texto": "La empresa tenía recursos económicos suficientes para asumir el costo de corregir el problema a tiempo.",
-			"tipo": "MEDIO",
-			"nombre_falacia": null,
-			"explicacion": "Hecho económico secundario frente al deber ético principal."
-		},
-		{
-			"texto": "El fiscal solo defiende esa postura porque seguro tiene prejuicios personales contra los trabajadores.",
-			"tipo": "FALACIA",
-			"nombre_falacia": "Ad Hominem",
-			"explicacion": "Ataca a la persona del fiscal en vez de refutar su argumento."
-		}
-	]
-	nuevas_opciones.shuffle()
-
-	_procesar_datos_turno({
-		"modelo_usado": "motor-rapido-espanol",
-		"veredicto_juez": veredicto,
-		"dano_al_rival": dano_r,
-		"dano_al_jugador": dano_j,
-		"rival_detecto_falacia_jugador": (dano_j >= 25),
-		"declaracion_rival": nueva_decl,
-		"opciones_jugador": nuevas_opciones
-	})
+	var datos: Dictionary = CasesDatabaseScript.generar_turno_autonomo(
+		caso_id_actual,
+		dificultad_actual,
+		accion,
+		declaracion_rival_actual,
+		opcion_elegida,
+		turno_idx
+	)
+	_procesar_datos_turno(datos)
