@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Juicio Lógico 8-Bit: Falacias y Ética Profesional"
-config/description="Videojuego 2D 8-bit de juicios por turnos sobre falacias, argumentación y ética profesional potenciado por LiteLLM."
+config/name="¡Objeción! Código de Honor"
+config/description="Videojuego 2D 8-bit de duelos judiciales por turnos."
 run/main_scene="res://scenes/MainCourtroom.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 

@@ -234,11 +234,11 @@ func _construir_menu_principal() -> void:
 	header_vbox.add_child(titulo_hbox)
 
 	var lbl_titulo := Label.new()
-	lbl_titulo.text = "⚖️ JUICIO LÓGICO 8-BIT: FALACIAS, ARGUMENTOS Y ÉTICA PROFESIONAL ⚖️"
+	lbl_titulo.text = "⚖️  ¡OBJECIÓN! CÓDIGO DE HONOR  ⚖️"
 	lbl_titulo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl_titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl_titulo.add_theme_color_override("font_color", Color("#fee761"))
-	lbl_titulo.add_theme_font_size_override("font_size", 18)
+	lbl_titulo.add_theme_font_size_override("font_size", 20)
 	titulo_hbox.add_child(lbl_titulo)
 
 	lbl_menu_dot = Label.new()
@@ -248,7 +248,7 @@ func _construir_menu_principal() -> void:
 	titulo_hbox.add_child(lbl_menu_dot)
 
 	var lbl_sub := Label.new()
-	lbl_sub.text = "Selecciona el Expediente de Ética Profesional y el Nivel del Tribunal"
+	lbl_sub.text = "Crónicas del Estrado — Elige el Expediente y el Nivel del Tribunal"
 	lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl_sub.add_theme_color_override("font_color", Color("#2ce8f5"))
 	lbl_sub.add_theme_font_size_override("font_size", 12)
