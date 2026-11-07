@@ -4,7 +4,7 @@ extends SceneTree
 ## y verifica tanto la ausencia de bugs visuales como la resistencia ante acciones
 ## accidentales o malintencionadas de un jugador ("romper el juego").
 
-var dir_capturas: String = "c:/Users/gabri/OneDrive/Escritorio/juegoFilosofia/capturas_playtest"
+var dir_capturas: String = ProjectSettings.globalize_path("res://../capturas_playtest")
 var anomalias_detectadas: Array[String] = []
 var pruebas_superadas: Array[String] = []
 

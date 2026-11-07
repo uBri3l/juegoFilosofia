@@ -187,18 +187,6 @@ func _centrar_ventana_en_pantalla() -> void:
 	DisplayServer.window_move_to_foreground()
 
 
-func _guardar_captura_verificacion() -> void:
-	if DisplayServer.get_name() == "headless":
-		return
-	await get_tree().process_frame
-	await get_tree().process_frame
-	var viewport_tex: ViewportTexture = get_viewport().get_texture()
-	if viewport_tex:
-		var img: Image = viewport_tex.get_image()
-		if img:
-			img.save_png("c:/Users/gabri/OneDrive/Escritorio/juegoFilosofia/captura_juego.png")
-
-
 func _crear_estilo_caja(bg_hex: String, border_hex: String, border_w: int = 2, pad: int = 6) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(bg_hex)
@@ -415,7 +403,6 @@ func mostrar_menu_principal() -> void:
 	http_req.cancel_request()
 	menu_container.visible = true
 	game_container.visible = false
-	_guardar_captura_verificacion()
 
 
 func comenzar_partida_desde_menu() -> void:
@@ -781,8 +768,6 @@ func _mostrar_pantalla_fin_de_juego(es_victoria: bool) -> void:
 		lbl_juez_feedback.text = "VEREDICTO FINAL: NO HA LUGAR. La fiscalía se impone en este caso."
 		_mostrar_dialogo_rival("Sus errores de razonamiento lógico han quedado expuestos. ¡El caso está cerrado!")
 
-	_guardar_captura_verificacion()
-
 
 func _procesar_datos_turno(datos: Dictionary) -> void:
 	_actualizar_indicador_servidor(servidor_local_disponible and not OS.has_feature("web"))
@@ -831,7 +816,6 @@ func _procesar_datos_turno(datos: Dictionary) -> void:
 		ya_objeto_este_turno = false
 		btn_objecion_falacia.text = "¡OBJECIÓN! MARCAR DECLARACIÓN COMO FALACIA"
 	_set_botones_habilitados(true)
-	_guardar_captura_verificacion()
 
 
 func _mostrar_dialogo_rival(texto: String) -> void:

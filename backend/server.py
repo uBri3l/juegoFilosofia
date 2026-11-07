@@ -11,8 +11,9 @@ import random
 from typing import Any
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import litellm
 from pydantic import BaseModel
 
@@ -24,18 +25,41 @@ load_dotenv()
 litellm.telemetry = False
 litellm.drop_params = True
 
+MAX_PAYLOAD_BYTES: int = 131_072  # Límite estricto de 128 KB contra ataques DoS por tamaño de cuerpo
+
 app = FastAPI(
-    title="Juicio Lógico 8-Bit - LiteLLM Engine",
-    description="Backend orquestador de modelos gratuitos de LLM para el juego en Godot.",
-    version="1.1.0",
+    title="¡Objeción! Código de Honor - Motor Lógico",
+    description="Backend local de procesamiento de turnos para el videojuego.",
+    version="1.2.0",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
 )
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Accept", "Origin"],
 )
+
+
+@app.middleware("http")
+async def middleware_seguridad_http(request: Request, call_next: Any) -> Any:
+    """Aplica límite de tamaño de payload (anti-DoS) y cabeceras de seguridad OWASP."""
+    content_length = request.headers.get("content-length")
+    if content_length and content_length.isdigit() and int(content_length) > MAX_PAYLOAD_BYTES:
+        return JSONResponse(
+            status_code=413,
+            content={"detail": "Payload demasiado grande (máximo permitido: 128 KB)."},
+        )
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+    return response
 
 # Memoria en tiempo de ejecución de modelos con clave inválida o no encontrados
 # para no volver a consultarlos y evitar cualquier bloqueo entre turnos.
@@ -168,19 +192,22 @@ def procesar_turno(req: TurnRequest) -> dict[str, Any]:
     # Probamos máximo 1 modelo rápido por turno con timeout corto para que el juego NUNCA se tranque
     modelos = detectar_modelos_gratuitos_disponibles()[:1]
 
+    # Sanitización de fronteras y recorte defensivo contra inyección de volumen (Token Bomb / DoS)
+    hp_j_seguro = max(0, min(100, int(req.hp_jugador)))
+    hp_r_seguro = max(0, min(100, int(req.hp_rival)))
+    historial_seguro = [str(item)[:400] for item in (req.historial_resumido or [])[-12:]]
+
     user_prompt = build_turn_user_prompt(
         caso_titulo=caso["titulo"],
         caso_contexto=caso["descripcion"],
-        dificultad=req.dificultad,
-        hp_jugador=req.hp_jugador,
-        hp_rival=req.hp_rival,
+        dificultad=str(req.dificultad)[:32],
+        hp_jugador=hp_j_seguro,
+        hp_rival=hp_r_seguro,
         declaracion_previa_rival=req.declaracion_previa_rival or {},
-        accion_jugador=req.accion_jugador,
+        accion_jugador=str(req.accion_jugador)[:32],
         opcion_elegida=req.opcion_elegida,
-        historial_resumido=req.historial_resumido,
+        historial_resumido=historial_seguro,
     )
-
-    errores_proveedores: list[str] = []
 
     for modelo in modelos:
         try:
@@ -212,11 +239,9 @@ def procesar_turno(req: TurnRequest) -> dict[str, Any]:
                 datos = _normalizar_danos_turno(req, datos)
                 datos["modelo_usado"] = modelo
                 return datos
-            errores_proveedores.append(f"{modelo}: Respuesta descartada por idioma o formato incompleto")
             MODELOS_PENALIZADOS.add(modelo)
-        except (FuturesTimeoutError, Exception) as exc:
-            msg = str(exc) or "Timeout superado (3.2s)"
-            errores_proveedores.append(f"{modelo}: {msg}")
+        except (FuturesTimeoutError, Exception):
+            # Nunca exponemos trazas ni mensajes internos de excepción de proveedores al cliente
             MODELOS_PENALIZADOS.add(modelo)
 
     respaldo = generar_turno_respaldo_local(
@@ -228,8 +253,6 @@ def procesar_turno(req: TurnRequest) -> dict[str, Any]:
         turno_idx=req.turno_idx,
     )
     respaldo["modelo_usado"] = "motor-rapido-espanol"
-    if errores_proveedores:
-        respaldo["avisos_litellm"] = errores_proveedores
     return respaldo
 
 

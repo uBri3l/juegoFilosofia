@@ -1,10 +1,9 @@
 @echo off
-title Servidor Web Multi-Dispositivo (PC / Celular / Tablet)
+title Servidor Web Local - Objecion Codigo de Honor
 echo ===============================================================
-echo   SERVIDOR WEB HTML5 - JUICIO LOGICO 8-BIT
-echo   Abre http://localhost:8080 en tu navegador o desde tu celular
-echo   conectado a la misma red Wi-Fi usando la IP local de tu PC.
+echo   SERVIDOR WEB HTML5 - ¡OBJECION! CODIGO DE HONOR
+echo   Escuchando de forma segura solo en http://127.0.0.1:8080
 echo ===============================================================
-start "" "http://localhost:8080"
-python -m http.server 8080 --directory "%~dp0builds\web"
+start "" "http://127.0.0.1:8080"
+python -m http.server 8080 --bind 127.0.0.1 --directory "%~dp0builds\web"
 pause

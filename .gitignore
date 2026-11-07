@@ -22,6 +22,8 @@ builds/
 *.exe
 *.pck
 captura_juego.png
+capturas_playtest/
+capturas_partida_real/
 
 # OS / Editor
 .DS_Store

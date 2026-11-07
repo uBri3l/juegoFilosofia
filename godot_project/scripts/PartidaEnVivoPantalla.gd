@@ -6,7 +6,7 @@ extends SceneTree
 ## - Partida 2 (Modo Autónomo Sin Servidor, como en otro dispositivo): Desde el Menú
 ##   Principal hasta DERROTA reduciendo la vida del jugador turno por turno hasta 0 HP.
 
-var dir_vivo: String = "c:/Users/gabri/OneDrive/Escritorio/juegoFilosofia/capturas_partida_real"
+var dir_vivo: String = ProjectSettings.globalize_path("res://../capturas_partida_real")
 
 
 func _init() -> void:
