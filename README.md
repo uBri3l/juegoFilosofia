@@ -48,10 +48,18 @@ El motor `backend/server.py` usa **LiteLLM** para rotar automáticamente entre t
 
 ---
 
-## 🚀 Cómo Ejecutar el Videojuego
+## 🚀 Cómo Ejecutar el Videojuego (Multi-Dispositivo)
 
+### Opción 1: Ejecutable Portátil para Windows (`.exe` sin instalar nada)
+- Ya está compilado en `builds/windows/JuicioLogico8Bit.exe` (y disponible para descargar en [GitHub Releases v1.0.0](https://github.com/uBri3l/juegoFilosofia/releases/tag/v1.0.0)).
+- Puedes copiar ese único archivo `.exe` a cualquier otra PC con Windows y abrirlo con doble clic (incluye la base de datos autónoma [`CasesDatabase.gd`](godot_project/scripts/CasesDatabase.gd) con los 4 casos éticos completos, por lo que no necesita tener Python ni Godot instalados).
+
+### Opción 2: Versión Web HTML5 (Celulares Android/iOS, Tablets, Mac, Linux)
+- Compilada en `builds/web/index.html` (y en `JuicioLogico8Bit_Web.zip` dentro de [GitHub Releases v1.0.0](https://github.com/uBri3l/juegoFilosofia/releases/tag/v1.0.0)).
+- Para jugarla en tu navegador o desde dispositivos conectados a tu Wi-Fi local, haz doble clic en `abrir_version_web_local.bat` y entra a `http://localhost:8080`.
+
+### Opción 3: Modo Desarrollo Completo (LiteLLM + Godot 4)
 1. **Iniciar el motor LiteLLM:**
    - Haz doble clic en `iniciar_servidor_litellm.bat` (o ejecuta `python backend/server.py`).
 2. **Abrir el juego en Godot 4:**
-   - Abre **Godot Engine 4.x**, haz clic en **Importar** y selecciona `godot_project/project.godot`.
-   - Presiona **F5** (Ejecutar proyecto).
+   - Abre **Godot Engine 4.x**, haz clic en **Importar** y selecciona `godot_project/project.godot` (o ejecuta `jugar_ahora.bat`).
