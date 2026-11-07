@@ -1,0 +1,29 @@
+# Variables de entorno y claves privadas (NUNCA subir a GitHub)
+.env
+*.env.local
+
+# Python / Backend LiteLLM
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# Godot 4+
+.godot/
+*.import
+export_presets.cfg
+*.translation
+
+# Builds y binarios
+builds/
+*.exe
+*.pck
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
