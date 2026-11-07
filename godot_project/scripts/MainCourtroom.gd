@@ -122,6 +122,22 @@ func _ready() -> void:
 	add_child(http_req)
 	http_req.request_completed.connect(_on_litellm_response)
 
+	# Sondeo rápido en segundo plano mientras el usuario está en el Menú Principal:
+	# si el servidor Python no está encendido (ej. jugando el .exe en otro dispositivo),
+	# pasa automáticamente a Modo Autónomo instantáneo (0.0s de espera).
+	var ping_req := HTTPRequest.new()
+	ping_req.timeout = 0.5
+	add_child(ping_req)
+	ping_req.request_completed.connect(func(res: int, code: int, _h: PackedStringArray, _b: PackedByteArray):
+		if res != HTTPRequest.RESULT_SUCCESS or code != 200:
+			servidor_local_disponible = false
+		ping_req.queue_free()
+	)
+	var err_ping: Error = ping_req.request("http://127.0.0.1:8000/health")
+	if err_ping != OK:
+		servidor_local_disponible = false
+		ping_req.queue_free()
+
 	_construir_menu_principal()
 	_construir_interfaz_juzgado()
 	mostrar_menu_principal()
@@ -134,6 +150,7 @@ func _process(delta: float) -> void:
 		tiempo_espera_actual += delta
 		if tiempo_espera_actual >= TIEMPO_MAX_ESPERA:
 			tiempo_espera_actual = 0.0
+			servidor_local_disponible = false
 			http_req.cancel_request()
 			lbl_modelo_ia.text = "[IA: Respuesta Rápida Local]"
 			_aplicar_respaldo_offline_en_godot(ultima_accion_pendiente, ultima_opcion_pendiente)
@@ -455,8 +472,8 @@ func _construir_interfaz_juzgado() -> void:
 	bar_hp_jugador.value = 100
 	bar_hp_jugador.show_percentage = false
 	bar_hp_jugador.custom_minimum_size = Vector2(0, 14)
-	bar_hp_jugador.add_theme_stylebox_override("background", _crear_estilo_caja("#262b44", "#ffffff", 1))
-	bar_hp_jugador.add_theme_stylebox_override("fill", _crear_estilo_caja("#38b764", "#ffffff", 0))
+	bar_hp_jugador.add_theme_stylebox_override("background", _crear_estilo_caja("#262b44", "#ffffff", 1, 0))
+	bar_hp_jugador.add_theme_stylebox_override("fill", _crear_estilo_caja("#38b764", "#ffffff", 0, 0))
 	vbox_hp_p.add_child(bar_hp_jugador)
 
 	var vbox_hp_r := VBoxContainer.new()
@@ -475,8 +492,8 @@ func _construir_interfaz_juzgado() -> void:
 	bar_hp_rival.value = 100
 	bar_hp_rival.show_percentage = false
 	bar_hp_rival.custom_minimum_size = Vector2(0, 14)
-	bar_hp_rival.add_theme_stylebox_override("background", _crear_estilo_caja("#262b44", "#ffffff", 1))
-	bar_hp_rival.add_theme_stylebox_override("fill", _crear_estilo_caja("#e43b44", "#ffffff", 0))
+	bar_hp_rival.add_theme_stylebox_override("background", _crear_estilo_caja("#262b44", "#ffffff", 1, 0))
+	bar_hp_rival.add_theme_stylebox_override("fill", _crear_estilo_caja("#e43b44", "#ffffff", 0, 0))
 	vbox_hp_r.add_child(bar_hp_rival)
 
 	# 3. Escenario 2D 8-Bit del Juzgado (con animaciones de Victoria/Derrota)
@@ -694,8 +711,7 @@ func _on_litellm_response(result: int, response_code: int, _headers: PackedStrin
 		return
 
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
-		if result == HTTPRequest.RESULT_CANT_CONNECT:
-			servidor_local_disponible = false
+		servidor_local_disponible = false
 		lbl_modelo_ia.text = "[IA: Motor Autónomo]"
 		_aplicar_respaldo_offline_en_godot(ultima_accion_pendiente, ultima_opcion_pendiente)
 		return
@@ -711,6 +727,11 @@ func _on_litellm_response(result: int, response_code: int, _headers: PackedStrin
 
 func _mostrar_pantalla_fin_de_juego(es_victoria: bool) -> void:
 	juicio_terminado = true
+	if es_victoria:
+		hp_rival = 0
+	else:
+		hp_jugador = 0
+	_actualizar_barras_vida()
 	_set_botones_habilitados(false)
 	grid_opciones.visible = false
 	endgame_panel.visible = true
