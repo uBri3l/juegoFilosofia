@@ -4,6 +4,7 @@ extends Control
 ## y gestiona barras de vida, turnos, 4 opciones de argumento y el botón de marcar falacia.
 
 const BACKEND_URL: String = "http://127.0.0.1:8000/turno"
+const PixelCourtStageScript = preload("res://scripts/PixelCourtStage.gd")
 
 var caso_id_actual: String = "caso_algoritmo_medico"
 var dificultad_actual: String = "NORMAL" # "FACIL" | "NORMAL" | "DIFICIL"
@@ -20,7 +21,7 @@ var opciones_actuales: Array = []
 var historial_resumido: Array[String] = []
 
 # Nodos de UI creados dinámicamente con estética 8-bit
-var stage: PixelCourtStage
+var stage: Control
 var lbl_hp_jugador: Label
 var bar_hp_jugador: ProgressBar
 var lbl_hp_rival: Label
@@ -163,7 +164,7 @@ func _construir_interfaz_8bit() -> void:
 	vbox_hp_r.add_child(bar_hp_rival)
 
 	# 3. Escenario 2D 8-Bit del Juzgado
-	stage = PixelCourtStage.new()
+	stage = PixelCourtStageScript.new()
 	stage.custom_minimum_size = Vector2(0, 168)
 	stage.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root_vbox.add_child(stage)
