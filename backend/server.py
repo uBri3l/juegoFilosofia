@@ -57,29 +57,29 @@ def detectar_modelos_gratuitos_disponibles() -> list[str]:
     """
     modelos: list[str] = []
 
+    if os.getenv("GEMINI_API_KEY"):
+        modelos.extend([
+            "gemini/gemini-3.8-flash",
+        ])
+
+    if os.getenv("OPENROUTER_API_KEY"):
+        modelos.extend([
+            "openrouter/nvidia/nemotron-3.5-lightning:free",
+            "openrouter/xingchen-agi/xing4.0-29b-a4b:free",
+            "openrouter/cohere/north-mini-code:free",
+            "openrouter/liquid/lfm-3-1.7b:free",
+        ])
+
     if os.getenv("GROQ_API_KEY"):
         modelos.extend([
             "groq/llama-3.3-70b-versatile",
             "groq/llama-3.1-8b-instant",
         ])
 
-    if os.getenv("GEMINI_API_KEY"):
-        modelos.extend([
-            "gemini/gemini-2.5-flash",
-            "gemini/gemini-2.0-flash",
-        ])
-
     if os.getenv("CEREBRAS_API_KEY"):
         modelos.extend([
             "cerebras/llama-3.3-70b",
             "cerebras/llama3.1-8b",
-        ])
-
-    if os.getenv("OPENROUTER_API_KEY"):
-        modelos.extend([
-            "openrouter/meta-llama/llama-3.3-70b-instruct:free",
-            "openrouter/google/gemma-3-27b-it:free",
-            "openrouter/qwen/qwen-2.5-72b-instruct:free",
         ])
 
     if os.getenv("MISTRAL_API_KEY"):
@@ -174,8 +174,8 @@ def procesar_turno(req: TurnRequest) -> dict[str, Any]:
                     {"role": "user", "content": user_prompt},
                 ],
                 temperature=0.7,
-                max_tokens=900,
-                timeout=18,
+                max_tokens=2500,
+                timeout=25,
             )
             contenido = respuesta.choices[0].message.content
             datos = limpiar_y_parsear_json(contenido)
