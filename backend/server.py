@@ -57,17 +57,17 @@ def detectar_modelos_gratuitos_disponibles() -> list[str]:
     """
     modelos: list[str] = []
 
+    if os.getenv("OPENROUTER_API_KEY"):
+        modelos.extend([
+            "openrouter/cohere/north-mini-code:free",
+            "openrouter/nvidia/nemotron-3.5-lightning:free",
+            "openrouter/xingchen-agi/xing4.0-29b-a4b:free",
+            "openrouter/liquid/lfm-3-1.7b:free",
+        ])
+
     if os.getenv("GEMINI_API_KEY"):
         modelos.extend([
             "gemini/gemini-3.8-flash",
-        ])
-
-    if os.getenv("OPENROUTER_API_KEY"):
-        modelos.extend([
-            "openrouter/nvidia/nemotron-3.5-lightning:free",
-            "openrouter/xingchen-agi/xing4.0-29b-a4b:free",
-            "openrouter/cohere/north-mini-code:free",
-            "openrouter/liquid/lfm-3-1.7b:free",
         ])
 
     if os.getenv("GROQ_API_KEY"):
