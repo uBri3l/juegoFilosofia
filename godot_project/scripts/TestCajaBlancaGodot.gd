@@ -345,7 +345,7 @@ func _test_main_courtroom_all_methods() -> void:
 	})
 	mc.hp_rival = 100
 	mc._on_litellm_response(HTTPRequest.RESULT_SUCCESS, 200, PackedStringArray(), json_ok.to_utf8_buffer())
-	_check(mc.hp_rival == 75 and mc.lbl_modelo_ia.text == "[IA: test-caja-blanca]", "Rama 4: HTTP 200 con JSON válido procesa turno y resta HP")
+	_check(mc.hp_rival == 75 and mc.lbl_modelo_ia.text == "●", "Rama 4: HTTP 200 con JSON válido procesa turno, muestra indicador verde '●' y resta HP")
 	_registrar("MainCourtroom.gd", "_on_litellm_response", ["Rama !esperando_respuesta", "Rama RESULT_CANT_CONNECT", "Rama JSON inválido", "Rama HTTP 200 JSON válido"], total_aserciones - a0, (Time.get_ticks_usec() - t0) / 1000.0)
 
 	# 3.13 _procesar_datos_turno() y _mostrar_pantalla_fin_de_juego(true/false)

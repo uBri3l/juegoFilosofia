@@ -47,17 +47,17 @@ const INFO_DIFICULTADES: Array[Dictionary] = [
 	{
 		"id": "FACIL",
 		"nombre": "SENCILLA (Aprendiz de Lógica)",
-		"detalle": "La máquina comete falacias con frecuencia (~60%) y rara vez detecta tus errores. Ideal para practicar identificación de falacias."
+		"detalle": "El fiscal comete falacias con frecuencia (~60%) y rara vez detecta tus errores. Ideal para practicar identificación de falacias."
 	},
 	{
 		"id": "NORMAL",
 		"nombre": "NORMAL (Abogado Litigante)",
-		"detalle": "Equilibrio entre falacias sutiles (35%), argumentos medios (45%) y argumentos sólidos (20%). La IA detecta el 80% de tus falacias."
+		"detalle": "Equilibrio entre falacias sutiles (35%), argumentos medios (45%) y argumentos sólidos (20%). El fiscal detecta el 80% de tus falacias."
 	},
 	{
 		"id": "DIFICIL",
 		"nombre": "DIFÍCIL (Magistrado Supremo)",
-		"detalle": "La máquina elige los mejores argumentos éticos y es difícil que emita falacias (~15% para no ser invencible). Detecta el 95% de tus errores."
+		"detalle": "El fiscal presenta argumentos éticos implacables y rara vez emite falacias (~15%). Detecta el 95% de tus errores."
 	}
 ]
 
@@ -92,6 +92,7 @@ var lbl_menu_caso_titulo: Label
 var lbl_menu_caso_tema: Label
 var lbl_menu_caso_desc: Label
 var lbl_menu_dif_desc: Label
+var lbl_menu_dot: Label
 var btns_menu_casos: Array[Button] = []
 var btns_menu_difs: Array[Button] = []
 
@@ -131,6 +132,9 @@ func _ready() -> void:
 	ping_req.request_completed.connect(func(res: int, code: int, _h: PackedStringArray, _b: PackedByteArray):
 		if res != HTTPRequest.RESULT_SUCCESS or code != 200:
 			servidor_local_disponible = false
+		else:
+			servidor_local_disponible = true
+		_actualizar_indicador_servidor(servidor_local_disponible)
 		ping_req.queue_free()
 	)
 	var err_ping: Error = ping_req.request("http://127.0.0.1:8000/health")
@@ -140,7 +144,18 @@ func _ready() -> void:
 
 	_construir_menu_principal()
 	_construir_interfaz_juzgado()
+	_actualizar_indicador_servidor(servidor_local_disponible and not OS.has_feature("web"))
 	mostrar_menu_principal()
+
+
+func _actualizar_indicador_servidor(encendido: bool) -> void:
+	var col: Color = Color("#38b764") if encendido else Color("#e43b44")
+	if lbl_modelo_ia:
+		lbl_modelo_ia.text = "●"
+		lbl_modelo_ia.add_theme_color_override("font_color", col)
+	if lbl_menu_dot:
+		lbl_menu_dot.text = "●"
+		lbl_menu_dot.add_theme_color_override("font_color", col)
 
 
 func _process(delta: float) -> void:
@@ -152,7 +167,7 @@ func _process(delta: float) -> void:
 			tiempo_espera_actual = 0.0
 			servidor_local_disponible = false
 			http_req.cancel_request()
-			lbl_modelo_ia.text = "[IA: Respuesta Rápida Local]"
+			_actualizar_indicador_servidor(false)
 			_aplicar_respaldo_offline_en_godot(ultima_accion_pendiente, ultima_opcion_pendiente)
 
 
@@ -215,15 +230,25 @@ func _construir_menu_principal() -> void:
 	header_vbox.add_theme_constant_override("separation", 4)
 	header_panel.add_child(header_vbox)
 
+	var titulo_hbox := HBoxContainer.new()
+	header_vbox.add_child(titulo_hbox)
+
 	var lbl_titulo := Label.new()
 	lbl_titulo.text = "⚖️ JUICIO LÓGICO 8-BIT: FALACIAS, ARGUMENTOS Y ÉTICA PROFESIONAL ⚖️"
+	lbl_titulo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl_titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl_titulo.add_theme_color_override("font_color", Color("#fee761"))
 	lbl_titulo.add_theme_font_size_override("font_size", 18)
-	header_vbox.add_child(lbl_titulo)
+	titulo_hbox.add_child(lbl_titulo)
+
+	lbl_menu_dot = Label.new()
+	lbl_menu_dot.text = "●"
+	lbl_menu_dot.add_theme_color_override("font_color", Color("#38b764"))
+	lbl_menu_dot.add_theme_font_size_override("font_size", 14)
+	titulo_hbox.add_child(lbl_menu_dot)
 
 	var lbl_sub := Label.new()
-	lbl_sub.text = "Selecciona el Tema de Ética Profesional y la Dificultad del Abogado Rival (IA con LiteLLM)"
+	lbl_sub.text = "Selecciona el Expediente de Ética Profesional y el Nivel del Tribunal"
 	lbl_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl_sub.add_theme_color_override("font_color", Color("#2ce8f5"))
 	lbl_sub.add_theme_font_size_override("font_size", 12)
@@ -444,12 +469,11 @@ func _construir_interfaz_juzgado() -> void:
 	top_hbox.add_child(btn_reiniciar)
 
 	lbl_modelo_ia = Label.new()
-	lbl_modelo_ia.text = "[IA: Conectada]"
+	lbl_modelo_ia.text = "●"
 	lbl_modelo_ia.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl_modelo_ia.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	lbl_modelo_ia.clip_text = true
-	lbl_modelo_ia.add_theme_color_override("font_color", Color("#63c74d"))
-	lbl_modelo_ia.add_theme_font_size_override("font_size", 11)
+	lbl_modelo_ia.add_theme_color_override("font_color", Color("#38b764"))
+	lbl_modelo_ia.add_theme_font_size_override("font_size", 14)
 	top_hbox.add_child(lbl_modelo_ia)
 
 	# 2. Barras de Vida (HP)
@@ -481,7 +505,7 @@ func _construir_interfaz_juzgado() -> void:
 	hp_hbox.add_child(vbox_hp_r)
 
 	lbl_hp_rival = Label.new()
-	lbl_hp_rival.text = "CREDIBILIDAD ABOGADO RIVAL (IA): 100 / 100 HP"
+	lbl_hp_rival.text = "CREDIBILIDAD FISCALÍA (RIVAL): 100 / 100 HP"
 	lbl_hp_rival.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	lbl_hp_rival.add_theme_color_override("font_color", Color("#ff7777"))
 	lbl_hp_rival.add_theme_font_size_override("font_size", 12)
@@ -527,7 +551,7 @@ func _construir_interfaz_juzgado() -> void:
 	dialogo_vbox.add_child(header_dialogo)
 
 	lbl_nombre_hablante = Label.new()
-	lbl_nombre_hablante.text = "ABOGADO CONTRINCANTE (IA):"
+	lbl_nombre_hablante.text = "PARTE ACUSADORA:"
 	lbl_nombre_hablante.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl_nombre_hablante.add_theme_color_override("font_color", Color("#ff6b6b"))
 	lbl_nombre_hablante.add_theme_font_size_override("font_size", 12)
@@ -629,7 +653,7 @@ func iniciar_nuevo_juicio() -> void:
 
 	var c_info: Dictionary = INFO_CASOS[indice_caso_seleccionado]
 	lbl_titulo_partida.text = c_info["titulo"] + "  |  Dificultad: " + dificultad_actual
-	lbl_nombre_hablante.text = c_info["rival"].to_upper() + " (CONTRINCANTE IA):"
+	lbl_nombre_hablante.text = c_info["rival"].to_upper() + ":"
 
 	_actualizar_barras_vida()
 	lbl_juez_feedback.text = "JUEZ: Juicio iniciado en dificultad " + dificultad_actual + ". Escuchemos el alegato inicial."
@@ -642,7 +666,7 @@ func _actualizar_barras_vida() -> void:
 	bar_hp_jugador.value = hp_jugador
 	bar_hp_rival.value = hp_rival
 	lbl_hp_jugador.text = "TU CREDIBILIDAD (DEFENSA): %d / 100 HP" % hp_jugador
-	lbl_hp_rival.text = "CREDIBILIDAD ABOGADO RIVAL (IA): %d / 100 HP" % hp_rival
+	lbl_hp_rival.text = "CREDIBILIDAD FISCALÍA (RIVAL): %d / 100 HP" % hp_rival
 
 
 func _set_botones_habilitados(habilitado: bool) -> void:
@@ -681,10 +705,11 @@ func _solicitar_turno_litellm(accion: String, opcion_elegida: Dictionary) -> voi
 	_set_botones_habilitados(false)
 
 	if OS.has_feature("web") or not servidor_local_disponible:
+		_actualizar_indicador_servidor(false)
 		_aplicar_respaldo_offline_en_godot(accion, opcion_elegida)
 		return
 
-	lbl_modelo_ia.text = "[IA: Analizando jugada...]"
+	_actualizar_indicador_servidor(true)
 	http_req.cancel_request()
 
 	var payload: Dictionary = {
@@ -703,6 +728,7 @@ func _solicitar_turno_litellm(accion: String, opcion_elegida: Dictionary) -> voi
 	var err: Error = http_req.request(BACKEND_URL, headers, HTTPClient.METHOD_POST, JSON.stringify(payload))
 	if err != OK:
 		servidor_local_disponible = false
+		_actualizar_indicador_servidor(false)
 		_aplicar_respaldo_offline_en_godot(accion, opcion_elegida)
 
 
@@ -712,7 +738,7 @@ func _on_litellm_response(result: int, response_code: int, _headers: PackedStrin
 
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
 		servidor_local_disponible = false
-		lbl_modelo_ia.text = "[IA: Motor Autónomo]"
+		_actualizar_indicador_servidor(false)
 		_aplicar_respaldo_offline_en_godot(ultima_accion_pendiente, ultima_opcion_pendiente)
 		return
 
@@ -722,6 +748,8 @@ func _on_litellm_response(result: int, response_code: int, _headers: PackedStrin
 		_aplicar_respaldo_offline_en_godot(ultima_accion_pendiente, ultima_opcion_pendiente)
 		return
 
+	servidor_local_disponible = true
+	_actualizar_indicador_servidor(true)
 	_procesar_datos_turno(parsed)
 
 
@@ -757,8 +785,7 @@ func _mostrar_pantalla_fin_de_juego(es_victoria: bool) -> void:
 
 
 func _procesar_datos_turno(datos: Dictionary) -> void:
-	var modelo: String = str(datos.get("modelo_usado", "LiteLLM"))
-	lbl_modelo_ia.text = "[IA: " + modelo + "]"
+	_actualizar_indicador_servidor(servidor_local_disponible and not OS.has_feature("web"))
 
 	var dano_r: int = int(datos.get("dano_al_rival", 0))
 	var dano_j: int = int(datos.get("dano_al_jugador", 0))
