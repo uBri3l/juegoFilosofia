@@ -1,6 +1,5 @@
 """
-Casos de Ética Profesional y motor de respaldo local por si aún no se han configurado
-API keys o se juega sin conexión.
+Casos de Ética Profesional y motor de respaldo local ultrarrápido en español.
 """
 
 import random
@@ -19,7 +18,7 @@ CASOS_DISPONIBLES = [
         "turnos_banco": [
             {
                 "rival_falacia": {
-                    "dialogo": "¡Señoría! La acusada lleva apenas dos años en la empresa y se viste de forma informal; alguien tan inexperto no puede entender de algoritmos médicos ni de ética corporativa.",
+                    "dialogo": "¡Señoría! La acusada lleva apenas dos años en la empresa y se viste de forma informal; alguien tan joven no puede entender de algoritmos médicos ni de ética corporativa.",
                     "es_falacia": True,
                     "tipo_argumento_rival": "FALACIA",
                     "nombre_falacia": "Ad Hominem",
@@ -37,7 +36,7 @@ CASOS_DISPONIBLES = [
                     "es_falacia": False,
                     "tipo_argumento_rival": "INFALIBLE",
                     "nombre_falacia": None,
-                    "explicacion_logica": "Argumento sólido de deontología profesional sobre el procedimiento gradual de denuncia (whistleblowing responsable).",
+                    "explicacion_logica": "Argumento sólido de deontología profesional sobre el procedimiento gradual de denuncia responsable.",
                 },
                 "opciones": [
                     {
@@ -50,7 +49,7 @@ CASOS_DISPONIBLES = [
                         "texto": "El hospital tiene mucho dinero y seguro puede pagar una indemnización sin demandar a una trabajadora honesta.",
                         "tipo": "MEDIO",
                         "nombre_falacia": None,
-                        "explicacion": "Argumento débil/medio: apela a la capacidad económica del hospital pero no resuelve el conflicto jurídico ni ético del NDA.",
+                        "explicacion": "Argumento medio: apela a la capacidad económica del hospital pero no resuelve el conflicto jurídico ni ético del NDA.",
                     },
                     {
                         "texto": "La ingeniera solo intentó ayudar porque sentía empatía por los pacientes mayores del hospital.",
@@ -61,7 +60,7 @@ CASOS_DISPONIBLES = [
                     {
                         "texto": "Si castigamos a esta ingeniera hoy, mañana ningún médico ni ingeniero volverá a salvar una sola vida y colapsarán todos los hospitales del país.",
                         "tipo": "FALACIA",
-                        "nombre_falacia": "Pendiente Resbaladiza (Slippery Slope)",
+                        "nombre_falacia": "Pendiente Resbaladiza",
                         "explicacion": "Falacia de Pendiente Resbaladiza: encadena consecuencias extremas e improbables sin demostrar el nexo causal necesario.",
                     },
                 ],
@@ -71,7 +70,7 @@ CASOS_DISPONIBLES = [
                     "dialogo": "O protegemos absolutamente todos los secretos empresariales sin excepción, o destruimos por completo la industria tecnológica nacional. ¡No hay punto medio!",
                     "es_falacia": True,
                     "tipo_argumento_rival": "FALACIA",
-                    "nombre_falacia": "Falso Dilema (Falsa Dicotomía)",
+                    "nombre_falacia": "Falso Dilema",
                     "explicacion_logica": "Presenta solo dos extremos radicales ignorando que se puede proteger la propiedad intelectual mientras se audita la seguridad médica.",
                 },
                 "rival_medio": {
@@ -98,7 +97,7 @@ CASOS_DISPONIBLES = [
                     {
                         "texto": "Otros hospitales también usan algoritmos parecidos y nadie los ha auditado todavía.",
                         "tipo": "FALACIA",
-                        "nombre_falacia": "Tu Quoque / Apelación a la práctica común",
+                        "nombre_falacia": "Tu Quoque (Apelación a la práctica común)",
                         "explicacion": "Falacia: que otros cometan la misma falta ética no convierte la práctica en moralmente aceptable.",
                     },
                     {
@@ -112,6 +111,55 @@ CASOS_DISPONIBLES = [
                         "tipo": "MEDIO",
                         "nombre_falacia": None,
                         "explicacion": "Argumento medio: aporta un hecho relevante pero requiere conectarlo con la urgencia del riesgo vital para justificar la acción.",
+                    },
+                ],
+            },
+            {
+                "rival_falacia": {
+                    "dialogo": "El código fuente del hospital es infalible porque fue escrito por una empresa líder del mercado; y como es de una empresa líder, jamás puede equivocarse.",
+                    "es_falacia": True,
+                    "tipo_argumento_rival": "FALACIA",
+                    "nombre_falacia": "Razonamiento Circular (Petición de Principio)",
+                    "explicacion_logica": "Asume en la premisa exactamente lo mismo que intenta demostrar sin aportar evidencia técnica de equidad clínica.",
+                },
+                "rival_medio": {
+                    "dialogo": "El sistema estadístico solo buscaba reducir tiempos de espera globales en la sala de urgencias usando datos históricos.",
+                    "es_falacia": False,
+                    "tipo_argumento_rival": "MEDIO",
+                    "nombre_falacia": None,
+                    "explicacion_logica": "Explica la finalidad utilitaria del diseño, pero ignora la discriminación injusta contra un grupo vulnerable.",
+                },
+                "rival_infalible": {
+                    "dialogo": "La evaluación de impacto algorítmico exigía presentar un informe técnico ante el comité de bioética del hospital para suspender el módulo sin interrumpir todo el servicio.",
+                    "es_falacia": False,
+                    "tipo_argumento_rival": "INFALIBLE",
+                    "nombre_falacia": None,
+                    "explicacion_logica": "Argumento riguroso basado en gobernanza técnica y continuidad asistencial segura.",
+                },
+                "opciones": [
+                    {
+                        "texto": "Los principios de justicia distributiva y equidad en bioética prohíben que un sistema automatizado discrimine el acceso vital por nivel socioeconómico en urgencias.",
+                        "tipo": "INFALIBLE",
+                        "nombre_falacia": None,
+                        "explicacion": "Argumento infalible: fundamenta el principio bioético de justicia e igualdad de trato en urgencias médicas.",
+                    },
+                    {
+                        "texto": "Como ningún paciente falleció ese mismo día específico, la ingeniera no tenía motivo real para preocuparse.",
+                        "tipo": "FALACIA",
+                        "nombre_falacia": "Falacia del Francotirador / Sesgo de resultado",
+                        "explicacion": "Falacia: evalúa la moralidad de una acción riesgosa solo por la suerte puntual de un día, ignorando el peligro sistémico.",
+                    },
+                    {
+                        "texto": "Los médicos de guardia tampoco estaban de acuerdo con usar ese programa informático.",
+                        "tipo": "MEDIO",
+                        "nombre_falacia": None,
+                        "explicacion": "Argumento medio: muestra respaldo gremial, pero no constituye por sí solo la demostración deontológica.",
+                    },
+                    {
+                        "texto": "Actualizar el servidor habría costado menos que el juicio actual.",
+                        "tipo": "MEDIO",
+                        "nombre_falacia": None,
+                        "explicacion": "Argumento medio pragmático, pero secundario frente a los derechos fundamentales de los pacientes.",
                     },
                 ],
             },
@@ -130,11 +178,11 @@ CASOS_DISPONIBLES = [
         "turnos_banco": [
             {
                 "rival_falacia": {
-                    "dialogo": "El prestigioso Premio Nobel de Economía afirmó hace años que la minería impulsa el progreso; por lo tanto, el informe químico de este perito sobre el arsénico es falso.",
+                    "dialogo": "El prestigioso Premio Nobel de Literatura afirmó hace años que la minería impulsa la cultura; por lo tanto, el informe químico de este perito sobre el arsénico es falso.",
                     "es_falacia": True,
                     "tipo_argumento_rival": "FALACIA",
                     "nombre_falacia": "Apelación a la Autoridad Irrelevante (Ad Verecundiam)",
-                    "explicacion_logica": "Cita a una autoridad en economía para refutar un análisis químico toxicológico fuera de su especialidad.",
+                    "explicacion_logica": "Cita a una autoridad ajena al campo científico para refutar un análisis químico toxicológico.",
                 },
                 "rival_medio": {
                     "dialogo": "El cliente pagó los honorarios del estudio privado, de modo que los resultados pertenecen exclusivamente a la empresa contratante.",
@@ -176,7 +224,56 @@ CASOS_DISPONIBLES = [
                         "explicacion": "Argumento medio contextual: explica por qué el informe era útil, pero debe vincularse al deber ético del profesional.",
                     },
                 ],
-            }
+            },
+            {
+                "rival_falacia": {
+                    "dialogo": "Durante cincuenta años esa mina operó sin que nadie denunciara arsénico; por lo tanto, es imposible que hoy exista contaminación en el agua.",
+                    "es_falacia": True,
+                    "tipo_argumento_rival": "FALACIA",
+                    "nombre_falacia": "Apelación a la Tradición (Ad Antiquitatem)",
+                    "explicacion_logica": "Asume que porque algo no se detectó en el pasado, no puede estar ocurriendo en el presente pese a las pruebas químicas.",
+                },
+                "rival_medio": {
+                    "dialogo": "La divulgación abrupta del informe causó pánico financiero en los accionistas de la compañía antes de que pudieran aplicar un plan de remediación.",
+                    "es_falacia": False,
+                    "tipo_argumento_rival": "MEDIO",
+                    "nombre_falacia": None,
+                    "explicacion_logica": "Señala un perjuicio económico real, pero subordinado frente a la prevención de envenenamiento por arsénico.",
+                },
+                "rival_infalible": {
+                    "dialogo": "El protocolo pericial exige entregar simultáneamente el acta técnica a la autoridad ambiental y al responsable de seguridad industrial para detener el vertido de inmediato.",
+                    "es_falacia": False,
+                    "tipo_argumento_rival": "INFALIBLE",
+                    "nombre_falacia": None,
+                    "explicacion_logica": "Argumento deontológico preciso sobre eficacia preventiva y notificación formal.",
+                },
+                "opciones": [
+                    {
+                        "texto": "Falsificar u ocultar un dictamen pericial constituiría perjurio técnico y complicidad en un daño ambiental irreversible contra la salud comunitaria.",
+                        "tipo": "INFALIBLE",
+                        "nombre_falacia": None,
+                        "explicacion": "Argumento infalible: vincula la prohibición de falsedad ideológica con la responsabilidad social del perito.",
+                    },
+                    {
+                        "texto": "Los directivos de las empresas mineras siempre mienten en todos los juicios, por eso su demanda carece de validez.",
+                        "tipo": "FALACIA",
+                        "nombre_falacia": "Generalización Apresurada / Ad Hominem",
+                        "explicacion": "Falacia: descalifica mediante un estereotipo generalizado en lugar de probar la validez del actuar del perito.",
+                    },
+                    {
+                        "texto": "El laboratorio donde se analizó el agua tenía equipos recién comprados este año.",
+                        "tipo": "MEDIO",
+                        "nombre_falacia": None,
+                        "explicacion": "Argumento medio: respalda la calidad técnica, pero no responde por sí mismo al dilema ético sobre el secreto profesional.",
+                    },
+                    {
+                        "texto": "El perito intentó llamar por teléfono al gerente un viernes por la tarde antes de enviar el reporte.",
+                        "tipo": "MEDIO",
+                        "nombre_falacia": None,
+                        "explicacion": "Argumento medio: muestra cortesía profesional, aunque debe complementarse con el principio de supremacía de la salud pública.",
+                    },
+                ],
+            },
         ],
     },
     {
@@ -187,12 +284,12 @@ CASOS_DISPONIBLES = [
         "descripcion": (
             "Un auditor contable aprobó los balances de un fondo de pensiones donde su propio hermano "
             "era director financiero, ocultando pérdidas millonarias como 'inversiones estratégicas'. "
-            "Tú representas al Comité de Ética que exige su sanción exemplar."
+            "Tú representas al Comité de Ética que exige su sanción ejemplar."
         ),
         "turnos_banco": [
             {
                 "rival_falacia": {
-                    "dialogo": "Ustedes dicen que mi cliente tenía conflicto de interés por auditar a su hermano, ¡pero ustedes solo quieren destruir a la familia tradicional y prohibir que los hermanos se hablen!",
+                    "dialogo": "Ustedes dicen que mi cliente tenía conflicto de interés por auditar a su hermano, ¡pero ustedes solo quieren destruir a la familia y prohibir que los hermanos se hablen!",
                     "es_falacia": True,
                     "tipo_argumento_rival": "FALACIA",
                     "nombre_falacia": "Hombre de Paja (Straw Man)",
@@ -238,6 +335,68 @@ CASOS_DISPONIBLES = [
                         "explicacion": "Argumento medio: es verdadero, pero menos contundente que la incompatibilidad directa por parentesco y falsedad ideológica.",
                     },
                 ],
+            },
+        ],
+    },
+    {
+        "id": "caso_ia_periodismo",
+        "titulo": "Caso 4: Fuentes Fabricadas con IA en Investigación",
+        "subtitulo": "Ética Periodística, Rigor Documental y Deber de Veracidad",
+        "abogado_rival": "Fiscal L. Valmont",
+        "descripcion": (
+            "Un periodista de investigación utilizó un generador de voz e imagen por IA para recrear "
+            "declaraciones de un testigo anónimo sin advertir al público que eran sintéticas, "
+            "provocando el cierre injusto de una cooperativa local."
+        ),
+        "turnos_banco": [
+            {
+                "rival_falacia": {
+                    "dialogo": "¡Si le exigimos a este periodista que verifique cada fuente y etiquete el contenido generado por IA, entonces tendremos que prohibir la electricidad y volver a escribir en piedra!",
+                    "es_falacia": True,
+                    "tipo_argumento_rival": "FALACIA",
+                    "nombre_falacia": "Reducción al Absurdo Falaz / Pendiente Resbaladiza",
+                    "explicacion_logica": "Exagera grotescamente una norma básica de transparencia deontológica como si implicara rechazar toda la tecnología.",
+                },
+                "rival_medio": {
+                    "dialogo": "El periodista usó la recreación sintética únicamente para proteger la identidad del informante frente a posibles represalias.",
+                    "es_falacia": False,
+                    "tipo_argumento_rival": "MEDIO",
+                    "nombre_falacia": None,
+                    "explicacion_logica": "Proteger la fuente es legítimo, pero no justifica presentar material sintético como prueba documental real sin advertencia.",
+                },
+                "rival_infalible": {
+                    "dialogo": "El editor jefe eliminó la marca de agua de advertencia de IA durante la edición final sin el consentimiento del reportero que entregó el borrador.",
+                    "es_falacia": False,
+                    "tipo_argumento_rival": "INFALIBLE",
+                    "nombre_falacia": None,
+                    "explicacion_logica": "Delimita con rigor la responsabilidad ética individual frente a la alteración editorial posterior.",
+                },
+                "opciones": [
+                    {
+                        "texto": "La deontología periodística exige transparencia radical con la audiencia y contraste independiente de hechos: proteger una fuente jamás autoriza presentar simulaciones sintéticas como evidencia fáctica sin rotulación explícita.",
+                        "tipo": "INFALIBLE",
+                        "nombre_falacia": None,
+                        "explicacion": "Argumento infalible: articula el deber de veracidad, transparencia informativa y no engaño al ciudadano.",
+                    },
+                    {
+                        "texto": "Ese periodista ganó un premio estudiantil hace diez años, así que es imposible que haya cometido un error ético hoy.",
+                        "tipo": "FALACIA",
+                        "nombre_falacia": "Apelación al Mérito Pasado / Ad Verecundiam",
+                        "explicacion": "Falacia: los méritos pasados no eximen de evaluar objetivamente una vulneración ética actual.",
+                    },
+                    {
+                        "texto": "El reportaje tuvo muchas visitas en internet y generó debate en la ciudad.",
+                        "tipo": "MEDIO",
+                        "nombre_falacia": None,
+                        "explicacion": "Argumento medio: el impacto mediático no valida éticamente un método engañoso.",
+                    },
+                    {
+                        "texto": "La cooperativa afectada tardó dos días en emitir su comunicado de desmentido.",
+                        "tipo": "MEDIO",
+                        "nombre_falacia": None,
+                        "explicacion": "Argumento medio irrelevante para eximir al profesional de su deber previo de verificación.",
+                    },
+                ],
             }
         ],
     },
@@ -253,8 +412,8 @@ def generar_turno_respaldo_local(
     turno_idx: int,
 ) -> dict:
     """
-    Genera una respuesta de turno siguiendo exactamente las reglas de dificultad
-    cuando se juega en modo local o si todas las APIs gratuitas están sin clave.
+    Genera una respuesta de turno instantánea en español siguiendo exactamente las reglas
+    de dificultad cuando los proveedores gratuitos exceden el tiempo límite.
     """
     caso = next((c for c in CASOS_DISPONIBLES if c["id"] == caso_id), CASOS_DISPONIBLES[0])
     banco = caso["turnos_banco"]
@@ -305,10 +464,8 @@ def generar_turno_respaldo_local(
             else:
                 veredicto_juez = f"Cometiste una falacia ({nom_fal}), ¡pero el fiscal no se dio cuenta esta vez!"
 
-    # Selección de la respuesta de la máquina según dificultad
     r = random.random()
     if dificultad == "FACIL":
-        # En sencilla la máquina se equivoca y emite falacias más recurrentemente (~60%)
         eleccion_rival = bloque["rival_falacia"] if r < 0.60 else bloque["rival_medio"]
     elif dificultad == "NORMAL":
         if r < 0.35:
@@ -317,8 +474,7 @@ def generar_turno_respaldo_local(
             eleccion_rival = bloque["rival_medio"]
         else:
             eleccion_rival = bloque["rival_infalible"]
-    else:  # DIFICIL
-        # En difícil elige mejores argumentos y es difícil que emita falacias, pero no imposible (~18%)
+    else:
         if r < 0.18:
             eleccion_rival = bloque["rival_falacia"]
         elif r < 0.55:
